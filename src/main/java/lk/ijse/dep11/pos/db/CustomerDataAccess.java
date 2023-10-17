@@ -10,14 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomerDataAccess {
-
+    private static final PreparedStatement STM_INSERT;
     private static final PreparedStatement STM_GET_ALL;
 
     static {
         try {
             Connection connection = SingleConnectionDataSource.getInstance().getConnection();
 
-            STM_GET_ALL = connection.prepareStatement("SELECT * FROM customer ORDER BY id");
+            STM_GET_ALL = connection
+                    .prepareStatement("SELECT * FROM customer ORDER BY id");
+            STM_INSERT = connection
+                    .prepareStatement("INSERT INTO customer (id, name, address) VALUES (?, ?, ?)");
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -34,6 +37,12 @@ public class CustomerDataAccess {
             customerList.add(new Customer(id, name, address));
         }
         return customerList;
+    }
+    public static void saveCustomer(Customer customer) throws SQLException {
+        STM_INSERT.setString(1, customer.getId());
+        STM_INSERT.setString(2, customer.getName());
+        STM_INSERT.setString(3, customer.getAddress());
+        STM_INSERT.executeUpdate();
     }
 
 }
