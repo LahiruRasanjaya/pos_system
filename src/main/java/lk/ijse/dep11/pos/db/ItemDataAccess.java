@@ -16,6 +16,7 @@ public class ItemDataAccess {
     private static final PreparedStatement STM_DELETE;
     private static final PreparedStatement STM_UPDATE;
     private static final PreparedStatement STM_GET_ALL;
+    private static final PreparedStatement STM_EXISTS;
 
 
     static {
@@ -27,6 +28,7 @@ public class ItemDataAccess {
             STM_UPDATE = connection
                     .prepareStatement("UPDATE item SET description=?, qty=?, unit_price=? WHERE code=?");
             STM_DELETE = connection.prepareStatement("DELETE FROM item WHERE code=?");
+            STM_EXISTS = connection.prepareStatement("SELECT code FROM item WHERE code=?");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -64,6 +66,10 @@ public class ItemDataAccess {
     public static void deleteItem(String code) throws SQLException {
         STM_DELETE.setString(1, code);
         STM_DELETE.executeUpdate();
+    }
+    public static boolean existsItem(String code) throws SQLException {
+        STM_EXISTS.setString(1, code);
+        return STM_EXISTS.executeQuery().next();
     }
 
 }

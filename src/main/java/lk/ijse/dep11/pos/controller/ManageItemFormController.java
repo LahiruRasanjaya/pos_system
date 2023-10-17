@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -30,15 +31,7 @@ public class ManageItemFormController {
     public TableView<Item> tblItems;
     public JFXTextField txtUnitPrice;
 
-    public void navigateToHome(MouseEvent mouseEvent) throws IOException {
-        URL resource = this.getClass().getResource("/view/MainForm.fxml");
-        Parent root = FXMLLoader.load(resource);
-        Scene scene = new Scene(root);
-        Stage primaryStage = (Stage) (this.root.getScene().getWindow());
-        primaryStage.setScene(scene);
-        primaryStage.centerOnScreen();
-        Platform.runLater(primaryStage::sizeToScene);
-    }
+
     public void initialize(){
         tblItems.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("code"));
         tblItems.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -69,11 +62,54 @@ public class ManageItemFormController {
             }
         });
     }
+    public void navigateToHome(MouseEvent mouseEvent) throws IOException {
+        MainFormController.navigateToMain(root);
+    }
 
     public void btnAddNew_OnAction(ActionEvent actionEvent) {
+        for (TextField textField : new TextField[]{txtCode, txtDescription, txtQtyOnHand, txtUnitPrice})
+            textField.clear();
+        txtCode.requestFocus();
+        tblItems.getSelectionModel().clearSelection();
+
     }
 
     public void btnSave_OnAction(ActionEvent actionEvent) {
+        if (!isDataValid()) return;
+    }
+    private boolean isDataValid(){
+        String code = txtCode.getText().strip();
+        String description = txtDescription.getText().strip();
+        String qty = txtQtyOnHand.getText().strip();
+        String unitPrice = txtUnitPrice.getText().strip();
+
+        if (!code.matches("\\d{4,}")){
+            txtCode.requestFocus();
+            txtCode.selectAll();
+            return false;
+        }else if (!description.matches("[A-Za-z0-9 ]{4,}")){
+            txtDescription.requestFocus();
+            txtDescription.selectAll();
+            return false;
+        }else if(!qty.matches("\\d+") || Integer.parseInt(qty) <= 0){
+            txtQtyOnHand.requestFocus();
+            txtQtyOnHand.selectAll();
+            return false;
+        }else if(!isPrice(unitPrice)){
+            txtUnitPrice.requestFocus();
+            txtUnitPrice.selectAll();
+            return false;
+        }
+
+        return true;
+    }
+    private boolean isPrice(String input){
+        try {
+            double price = Double.parseDouble(input);
+            return price > 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     public void btnDelete_OnAction(ActionEvent actionEvent) {
