@@ -54,4 +54,11 @@ class CustomerDataAccessTest {
             assertNotNull(lastCustomerId);
         }
     }
+
+    @Test
+    void updateCustomer() throws SQLException {
+        CustomerDataAccess.saveCustomer(new Customer("ABC", "Kasun", "Galle"));
+        assertDoesNotThrow(()-> CustomerDataAccess
+                .updateCustomer(new Customer("ABC", "Ruwan", "Matara")));
+    }
 }
