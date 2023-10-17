@@ -26,6 +26,7 @@ import lk.ijse.dep11.pos.tm.OrderItem;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -171,5 +172,15 @@ public class PlaceOrderFormController {
     }
 
     public void btnPlaceOrder_OnAction(ActionEvent actionEvent) {
+        try {
+            OrderDataAccess.saveOrder(lblId.getText().replace("Order ID: ", "").strip(),
+                    Date.valueOf(lblDate.getText()),
+                    cmbCustomerId.getValue().getId(),
+                    tblOrderDetails.getItems());
+            newOrder();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to save the order, try again").show();
+        }
     }
 }
