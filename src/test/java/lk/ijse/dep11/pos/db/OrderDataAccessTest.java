@@ -64,4 +64,5 @@ class OrderDataAccessTest {
             assertNotNull(OrderDataAccess.getLastOrderId());
         }
     }
+
 }
