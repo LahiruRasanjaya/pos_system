@@ -13,6 +13,7 @@ public class CustomerDataAccess {
     private static final PreparedStatement STM_INSERT;
     private static final PreparedStatement STM_GET_ALL;
     private static final PreparedStatement STM_GET_LAST_ID;
+    private static final PreparedStatement STM_UPDATE;
 
     static {
         try {
@@ -24,6 +25,8 @@ public class CustomerDataAccess {
                     .prepareStatement("INSERT INTO customer (id, name, address) VALUES (?, ?, ?)");
             STM_GET_LAST_ID = connection
                     .prepareStatement("SELECT id FROM customer ORDER BY id DESC FETCH FIRST ROWS ONLY");
+            STM_UPDATE = connection
+                    .prepareStatement("UPDATE customer SET name=?, address=? WHERE id=?");
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -54,6 +57,12 @@ public class CustomerDataAccess {
         }else{
             return null;
         }
+    }
+    public static void updateCustomer(Customer customer) throws SQLException {
+        STM_UPDATE.setString(1, customer.getName());
+        STM_UPDATE.setString(2, customer.getAddress());
+        STM_UPDATE.setString(3, customer.getId());
+        STM_UPDATE.executeUpdate();
     }
 
 }

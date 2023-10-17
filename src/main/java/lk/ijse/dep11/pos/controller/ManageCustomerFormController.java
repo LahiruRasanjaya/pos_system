@@ -3,6 +3,7 @@ package lk.ijse.dep11.pos.controller;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -78,6 +79,26 @@ public class ManageCustomerFormController {
     }
 
     public void btnSave_OnAction(ActionEvent actionEvent) {
+        if (!isDataValid()) return;
+
+        Customer customer = new Customer(txtCustomerId.getText(),
+                txtCustomerName.getText().strip(), txtCustomerAddress.getText().strip());
+        try {
+            if (btnSave.getText().equals("SAVE")){
+                CustomerDataAccess.saveCustomer(customer);
+                tblCustomers.getItems().add(customer);
+            }else{
+                CustomerDataAccess.updateCustomer(customer);
+                ObservableList<Customer> customerList = tblCustomers.getItems();
+                Customer selectedCustomer = tblCustomers.getSelectionModel().getSelectedItem();
+                customerList.set(customerList.indexOf(selectedCustomer), customer);
+                tblCustomers.refresh();
+            }
+            btnAddNew.fire();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to save the customer, try again").show();
+        }
     }
     private boolean isDataValid() {
         String name = txtCustomerName.getText().strip();
