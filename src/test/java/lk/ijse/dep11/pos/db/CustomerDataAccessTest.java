@@ -61,4 +61,8 @@ class CustomerDataAccessTest {
         assertDoesNotThrow(()-> CustomerDataAccess
                 .updateCustomer(new Customer("ABC", "Ruwan", "Matara")));
     }
+
+    @Test
+    void deleteCustomer() {
+    }
 }
