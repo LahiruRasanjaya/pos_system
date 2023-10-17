@@ -15,6 +15,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import lk.ijse.dep11.pos.db.ItemDataAccess;
+import lk.ijse.dep11.pos.db.OrderDataAccess;
 import lk.ijse.dep11.pos.tm.Item;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ public class ManageItemFormController {
     public JFXButton btnDelete;
     public TableView<Item> tblItems;
     public JFXTextField txtUnitPrice;
+    public JFXButton btnAddNew;
 
 
     public void initialize(){
@@ -113,5 +115,18 @@ public class ManageItemFormController {
     }
 
     public void btnDelete_OnAction(ActionEvent actionEvent) {
+        Item selectedItem = tblItems.getSelectionModel().getSelectedItem();
+        try {
+            if (OrderDataAccess.existsOrderByItemCode(selectedItem.getCode())){
+                new Alert(Alert.AlertType.ERROR, "Failed to delete, the item already associated with an order").show();
+            }else{
+                ItemDataAccess.deleteItem(selectedItem.getCode());
+                tblItems.getItems().remove(selectedItem);
+                if (tblItems.getItems().isEmpty()) btnAddNew.fire();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to delete the item, try again").show();
+        }
     }
 }
