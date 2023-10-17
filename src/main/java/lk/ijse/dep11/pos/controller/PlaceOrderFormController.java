@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -15,12 +16,16 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import lk.ijse.dep11.pos.db.CustomerDataAccess;
+import lk.ijse.dep11.pos.db.ItemDataAccess;
+import lk.ijse.dep11.pos.db.OrderDataAccess;
 import lk.ijse.dep11.pos.tm.Customer;
 import lk.ijse.dep11.pos.tm.Item;
 import lk.ijse.dep11.pos.tm.OrderItem;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -78,12 +83,6 @@ public class PlaceOrderFormController {
         });
         txtQty.textProperty().addListener((ov, prevQty, curQty) -> {
             Item selectedItem = cmbItemCode.getSelectionModel().getSelectedItem();
-//            btnSave.setDisable(true);
-//            if (cur.matches("\\d+")){
-//                if (Integer.parseInt(cur) <= selectedItem.getQty() && Integer.parseInt(cur) > 0){
-//                    btnSave.setDisable(false);
-//                }
-//            }
             btnSave.setDisable(!(curQty.matches("\\d+") && Integer.parseInt(curQty) <= selectedItem.getQty()
                     && Integer.parseInt(curQty) > 0));
         });
@@ -93,7 +92,33 @@ public class PlaceOrderFormController {
             txt.clear();
             txt.setDisable(true);
         }
+        tblOrderDetails.getItems().clear();
+        lblTotal.setText("TOTAL: Rs. 0.00");
+        btnSave.setDisable(true);
+
+        btnPlaceOrder.setDisable(true);
+        cmbCustomerId.getSelectionModel().clearSelection();
+        cmbItemCode.getSelectionModel().clearSelection();
+        try {
+            cmbCustomerId.getItems().clear();
+            cmbCustomerId.getItems().addAll(CustomerDataAccess.getAllCustomers());
+            cmbItemCode.getItems().clear();
+            cmbItemCode.getItems().addAll(ItemDataAccess.getAllItems());
+            String lastOrderId = OrderDataAccess.getLastOrderId();
+            if (lastOrderId == null){
+                lblId.setText("Order ID: OD001");
+            }else{
+                int newOrderId = Integer.parseInt(lastOrderId.substring(2)) + 1;
+                lblId.setText(String.format("Order ID: OD%03d", newOrderId));
+            }
+        } catch (SQLException e) {
+            new Alert(Alert.AlertType.ERROR, "Failed to establish database connection, try later").show();
+            e.printStackTrace();
+            navigateToHome(null);
+        }
+        Platform.runLater(cmbCustomerId::requestFocus);
     }
+
 
     private void enablePlaceOrderButton(){
         Customer selectedCustomer = cmbCustomerId.getSelectionModel().getSelectedItem();
