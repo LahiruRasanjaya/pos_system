@@ -63,6 +63,12 @@ class CustomerDataAccessTest {
     }
 
     @Test
-    void deleteCustomer() {
+    void deleteCustomer() throws SQLException {
+        CustomerDataAccess.saveCustomer(new Customer("ABC", "Kasun", "Galle"));
+        int size = CustomerDataAccess.getAllCustomers().size();
+        assertDoesNotThrow(()-> {
+            CustomerDataAccess.deleteCustomer("ABC");
+            assertEquals(size - 1, CustomerDataAccess.getAllCustomers().size());
+        });
     }
 }
