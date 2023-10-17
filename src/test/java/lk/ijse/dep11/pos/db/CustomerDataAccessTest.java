@@ -42,4 +42,16 @@ class CustomerDataAccessTest {
         assertThrows(SQLException.class, ()-> CustomerDataAccess
                 .saveCustomer(new Customer("ABC", "Kasun", "Galle")));
     }
+
+    @Test
+    void getLastCustomerId() throws SQLException {
+        String lastCustomerId = CustomerDataAccess.getLastCustomerId();
+        if (CustomerDataAccess.getAllCustomers().isEmpty()){
+            assertNull(lastCustomerId);
+        }else{
+            CustomerDataAccess.saveCustomer(new Customer("ABC", "Kasun", "Galle"));
+            lastCustomerId = CustomerDataAccess.getLastCustomerId();
+            assertNotNull(lastCustomerId);
+        }
+    }
 }

@@ -6,11 +6,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.util.Properties;
 
 public class SingleConnectionDataSource {
     private static SingleConnectionDataSource instance;
     private final Connection connection;
+
 
     private SingleConnectionDataSource() {
         try {
