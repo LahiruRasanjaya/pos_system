@@ -24,10 +24,12 @@ import lk.ijse.dep11.pos.tm.Item;
 import lk.ijse.dep11.pos.tm.OrderItem;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class PlaceOrderFormController {
     public AnchorPane root;
@@ -130,7 +132,40 @@ public class PlaceOrderFormController {
     }
 
     public void btnAdd_OnAction(ActionEvent actionEvent) {
+        Item selectedItem = cmbItemCode.getSelectionModel().getSelectedItem();
+        Optional<OrderItem> optOrderItem = tblOrderDetails.getItems().stream()
+                .filter(item -> selectedItem.getCode().equals(item.getCode())).findFirst();
+
+        if (optOrderItem.isEmpty()) {
+            JFXButton btnDelete = new JFXButton("Delete");
+            OrderItem newOrderItem = new OrderItem(selectedItem.getCode(), selectedItem.getDescription(),
+                    Integer.parseInt(txtQty.getText()), selectedItem.getUnitPrice(),btnDelete);
+            tblOrderDetails.getItems().add(newOrderItem);
+            btnDelete.setOnAction(e -> {
+                tblOrderDetails.getItems().remove(newOrderItem);
+                selectedItem.setQty(selectedItem.getQty() + newOrderItem.getQty());
+                calculateOrderTotal();
+                enablePlaceOrderButton();
+            });
+            selectedItem.setQty(selectedItem.getQty() - newOrderItem.getQty());
+        } else {
+            OrderItem orderItem = optOrderItem.get();
+            orderItem.setQty(orderItem.getQty() + Integer.parseInt(txtQty.getText()));
+            tblOrderDetails.refresh();
+            selectedItem.setQty(selectedItem.getQty() - Integer.parseInt(txtQty.getText()));
+        }
+        cmbItemCode.getSelectionModel().clearSelection();
+        cmbItemCode.requestFocus();
+        calculateOrderTotal();
+        enablePlaceOrderButton();
     }
+    private void calculateOrderTotal() {
+        Optional<BigDecimal> orderTotal = tblOrderDetails.getItems().stream()
+                .map(oi -> oi.getTotal())
+                .reduce((prev, cur) -> prev.add(cur));
+        lblTotal.setText("Total: Rs. " + orderTotal.orElseGet(()->BigDecimal.ZERO).setScale(2));
+    }
+
 
     public void txtQty_OnAction(ActionEvent actionEvent) {
     }
